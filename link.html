@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Redirect...</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial;
+  background: #f6f7fb;
+  text-align: center;
+  padding-top: 60px;
+}
+.box {
+  background: white;
+  padding: 25px;
+  max-width: 520px;
+  margin: auto;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0,0,0,.08);
+}
+</style>
+</head>
+
+<body>
+<div class="box">
+  <h2 id="status">🔄 Đang xử lý...</h2>
+  <p id="msg"></p>
+</div>
+
+<script>
+(() => {
+  //const JSON_URL = "https://huyquochoc.github.io/Quiz/shortlinks.json";
+  const JSON_URL =
+  "https://gist.githubusercontent.com/mixeasy/22b1a55c4103343ce287737f2e29171c/raw/shortlinks.json";
+
+
+  const params = new URLSearchParams(window.location.search);
+  const key = params.get("id");
+
+  const statusEl = document.getElementById("status");
+  const msgEl = document.getElementById("msg");
+
+  if (!key) {
+    statusEl.textContent = "❌ Link không hợp lệ";
+    msgEl.textContent =
+      "Thiếu mã truy cập. Vui lòng kiểm tra lại link hoặc đợi vài chục giây nếu vừa mới tạo.";
+    return; // ✅ HỢP LỆ vì đang trong function
+  }
+
+  const retryKey = "retry_" + key;
+  let retry = Number(sessionStorage.getItem(retryKey) || 0);
+
+  fetch(JSON_URL + "?t=" + Date.now())
+    .then(r => r.json())
+    .then(data => {
+      if (!data[key]) {
+
+        if (retry < 2) {
+          retry++;
+          sessionStorage.setItem(retryKey, retry);
+
+          statusEl.textContent = "⏳ Đang đồng bộ link...";
+          msgEl.textContent = "Tự động thử lại sau vài giây.";
+
+          setTimeout(() => location.reload(), 5000);
+        } else {
+          statusEl.textContent = "❌ Link chưa sẵn sàng";
+          msgEl.textContent =
+            "Vui lòng thử lại sau 1–2 phút hoặc kiểm tra lại mã link.";
+        }
+        return;
+      }
+
+      sessionStorage.removeItem(retryKey);
+
+      const record = data[key];
+      const url = record.url;
+      const expire = record.expire;
+
+      if (!url) {
+        statusEl.textContent = "❌ Lỗi dữ liệu";
+        msgEl.textContent = "Không tìm thấy URL";
+        return;
+      }
+
+      if (expire) {
+        const today = new Date().toISOString().split("T")[0];
+        if (today > expire) {
+          statusEl.textContent = "⛔ Link đã hết hạn";
+          msgEl.textContent = "Vui lòng liên hệ giáo viên";
+          return;
+        }
+      }
+
+      statusEl.textContent = "✅";
+      msgEl.textContent = "Đang chuyển hướng...";
+
+      setTimeout(() => {
+        window.location.replace(url);
+      }, 700);
+    })
+    .catch(() => {
+      statusEl.textContent = "⚠️ Lỗi tải dữ liệu";
+      msgEl.textContent = "Không thể tải shortlinks.json";
+    });
+})();
+</script>
+
+
+
+</body>
+</html>
