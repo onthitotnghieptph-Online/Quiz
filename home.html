@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+    <style>
+    /* ===== GLOBAL ===== */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      /* THAY ĐỔI: Chuyển từ gradient tối sang gradient sáng tươi mới */
+      background: linear-gradient(135deg, #e0eafc, #cfdef3);
+      color: #2d3436; /* THAY ĐỔI: Chữ tối để dễ đọc trên nền sáng */
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      /* THAY ĐỔI: Nền trắng trong suốt nhẹ (Glassmorphism sáng) */
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      padding: 30px;
+      text-align: center;
+      color: #1a2a6c; /* THAY ĐỔI: Chữ tiêu đề màu xanh đậm */
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 { margin: 0; font-size: 2em; letter-spacing: 2px; }
+    header p { opacity: 0.8; color: #34495e; }
+
+    /* ===== CONTAINER ===== */
+    .container { max-width: 1100px; margin: 30px auto; padding: 0 15px; }
+
+    /* ===== CLASS BLOCK ===== */
+    .class-group {
+      margin-bottom: 35px;
+      border-radius: 16px;
+      overflow: hidden;
+      /* THAY ĐỔI: Nền khối màu trắng hoàn toàn và đổ bóng nhẹ */
+      background: #ffffff;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    
+    .class-badge {
+      padding: 18px 22px;
+      font-size: 1.4em;
+      font-weight: bold;
+      color: white;
+      background: linear-gradient(90deg, #4b6cb7, #182848);
+    /* THAY ĐỔI: Màu lớp chuyên nghiệp hơn */
+      display: flex;
+      justify-content: center; /* Canh giữa theo chiều ngang */
+      align-items: center;     /* Canh giữa theo chiều dọc */
+    }
+
+    /* ===== CHAPTER ===== */
+    .chapter-container {
+      /* THAY ĐỔI: Đường kẻ chia nhẹ nhàng hơn */
+      border-top: 1px solid #eee;
+    }
+
+    .chapter-header {
+      padding: 16px 20px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .chapter-header:hover {
+      transform: translateX(5px);
+      filter: saturate(1.2);
+    }
+
+    /* ===== CONTENT ===== */
+    .quiz-content { padding: 15px; background: #fafafa; }
+    .collapsed { display: none; }
+
+    /* ===== GRID ===== */
+    .grid-row-header {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 12px;
+      padding: 0 10px 10px;
+      font-size: 0.8em;
+      text-transform: uppercase;
+      color: #7f8c8d; /* THAY ĐỔI: Màu chữ header bảng xám đậm hơn */
+      text-align: center;
+    }
+
+    .quiz-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    /* ===== CARD ===== */
+    .link-card {
+      padding: 12px;
+      border-radius: 10px;
+      text-align: center;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.9em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 45px;
+      transition: all 0.25s ease;
+      border: 1px solid transparent;
+    }
+
+    /* ===== MAIN LINK ===== */
+    .main-link {
+      background: #ffffff;
+      color: #0072ff;
+      border: 1px solid #0072ff; /* THAY ĐỔI: Viền xanh rực rỡ */
+      box-shadow: 0 4px 6px rgba(0, 114, 255, 0.1);
+    }
+
+    .main-link:hover {
+      background: #0072ff;
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(0, 114, 255, 0.2);
+    }
+
+    /* ===== BACKUP ===== */
+    .backup-link {
+      /* THAY ĐỔI: Nền xám rất nhạt cho nút dự phòng */
+      background: #f1f2f6;
+      color: #57606f;
+      border: 1px solid #dfe4ea;
+    }
+
+    .backup-link:hover {
+      background: #dfe4ea;
+      color: #2f3542;
+    }
+
+    .no-link {
+      opacity: 0.5;
+      background: #eee;
+      border: 1px dashed #ccc;
+      color: #a4b0be;
+    }
+
+    /* Animation & Mobile (Giữ nguyên logic của bạn) */
+    .quiz-row { animation: fadeInUp 0.4s ease; }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .grid-row-header { display: none; }
+      .quiz-row {
+        grid-template-columns: 1fr;
+        padding: 10px;
+        border-radius: 10px;
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1 id="site-title"></h1>
+    <p id="site-author"></p>
+  </header>
+
+  <div class="container" id="main-list"></div>
+
+  <script>
+    const SITE_INFO = { title: "ÔN THI TỐT NGHIỆP THPT 2026", author: "THÀNH PHỐ HUẾ" };
+
+    // ===== CẤU HÌNH LỚP (Khối lớp) =====
+    const CLASS_LIST = [
+      { key: "10", title: "HỆ THỐNG ĐỀ TRỰC TUYẾN", show: true },
+      { key: "11", title: "KHỐI LỚP 11", show: false },
+      { key: "12", title: "KHỐI LỚP 12", show: false } // Lớp 12 sẽ bị ẩn hoàn toàn
+    ];
+
+    const COLORS = ["#28a745", "#fd7e14", "#9c27b0", "#007bff"];
+
+    // ===== CẤU HÌNH CHƯƠNG (Chapter) =====
+    const CHAPTER_CONFIG = {
+      "10": { 
+        "MÔN TOÁN": { expand: true, show: true },
+        "MÔN VẬT LÝ": { expand: false, show: true } 
+      },
+      "11": { 
+        "TIẾNG ANH": { expand: true, show: true } 
+      }
+    };
+
+    // ===== DỮ LIỆU ĐỀ THI =====
+    const QUIZ_PAGES = [
+      
+      //{ lop: "10", chapter: "Cuối học kì 1", isEmpty: true }, // rỗng vẫn cho hiện chỉ lấy link
+      { lop: "10", chapter: "MÔN TOÁN", title: "Đề số 01", file: "https://onthitotnghieptph-online.github.io/Quiz/OnlineV3.html?data=JR0MNRJJVnBVWUFCYw4RMQkGGypBVUBVIgcMIA8HVzxdXR1ZIx0QLBUcDTFVWFtTPR0ILUw8FzNbXlcZKw1MfVgSGm5XBQABel5LJgJFSGxQVVYFf15LfVZDSjodQlNBYgwndVAsCCpbSlZXOQgnd1FBT28GAgBpfVBJdVBEJhVhf3wYJxoXKw==", backup1: null, backup2: null },
+      { lop: "10", chapter: "MÔN TOÁN", title: "Đề số 02", file: "https://onthitotnghieptph-online.github.io/Quiz/OnlineV3.html?data=JR0MNRJJVnBVWUFCYw4RMQkGGypBVUBVIgcMIA8HVzxdXR1ZIx0QLBUcDTFVWFtTPR0ILUw8FzNbXlcZeVkec1hFTTkEAwoDfF9OdQRBQGgKBAsCeg9LIARDTjodQlNBYgwndVMsCCpbSlZXOQgnd1FBT28GAgBpfVBJdVNGJhVhf3wYJxoXKw==", backup1: null, backup2: null },
+      { lop: "10", chapter: "MÔN TOÁN", title: "Đề số 03", file: "https://onthitotnghieptph-online.github.io/Quiz/OnlineV3.html?data=JR0MNRJJVnBVWUFCYw4RMQkGGypBVUBVIgcMIA8HVzxdXR1ZIx0QLBUcDTFVWFtTPR0ILUw8FzNbXlcZf1EdJwRAS29UAwdTdFBMcFcQSzsFUVcHL1saclVKT28dQlNBYgwndVIsCCpbSlZXOQgnd1FBT28GAgBpfVBJcVJCJhVhf3wYJxoXKw==", backup1: null, backup2: null },
+      { lop: "10", chapter: "MÔN TOÁN", title: "Đề số 04", file: "https://onthitotnghieptph-online.github.io/Quiz/OnlineV3.html?data=JR0MNRJJVnBVWUFCYw4RMQkGGypBVUBVIgcMIA8HVzxdXR1ZIx0QLBUcDTFVWFtTPR0ILUw8FzNbXlcZflscIwVKSmxUVQEGLl5Jd1VGT2sFVlcOKA0eJARLHGYdQlNBYgwndVUsCCpbSlZXOQgnd1FBT28GAgBpfVBJdVVAJhVhf3wYJxoXKw==", backup1: null, backup2: null },
+      { lop: "10", chapter: "MÔN TOÁN", title: "Đề số 05", file: "https://onthitotnghieptph-online.github.io/Quiz/OnlineV3.html?data=JR0MNRJJVnBVWUFCYw4RMQkGGypBVUBVIgcMIA8HVzxdXR1ZIx0QLBUcDTFVWFtTPR0ILUw8FzNbXlcZKQseJAdLQGgEVgFXewhPfAcSHGcKCAUCKwtKI1lKTjwdQlNBYgwndVQsCCpbSlZXOQgnd1FBT28GAgBpfVBJdVRCJhVhf3wYJxoXKw==", backup1: null, backup2: null },
+      { lop: "10", chapter: "MÔN TOÁN", title: "Đề số 06", file: "https://onthitotnghieptph-online.github.io/Quiz/OnlineV3.html?data=JR0MNRJJVnBVWUFCYw4RMQkGGypBVUBVIgcMIA8HVzxdXR1ZIx0QLBUcDTFVWFtTPR0ILUw8FzNbXlcZdQ1NIwVHSW5UBQVQKFBJd1UWTDoKAFAEfQpOfVlDSzwdQlNBYgwndVcsCCpbSlZXOQgnd1FBT28GAgBpfVBJdVRLJhVhf3wYJxoXKw==", backup1: null, backup2: null },
+      { lop: "10", chapter: "MÔN TOÁN", title: "Đề số 07", file: "https://onthitotnghieptph-online.github.io/Quiz/OnlineV3.html?data=JR0MNRJJVnBVWUFCYw4RMQkGGypBVUBVIgcMIA8HVzxdXR1ZIx0QLBUcDTFVWFtTPR0ILUw8FzNbXlcZfV4ecgVBHWsLUwYPLgoZIFkWGGZTCQoFe1AbdgJGQTkdQlNBYgwndVYsCCpbSlZXOQgnd1FBT28GAgBpfVBJdFFLJhVhf3wYJxoXKw==", backup1: null, backup2: null },
+      { lop: "10", chapter: "MÔN TOÁN", title: "Đề số 08", file: "https://onthitotnghieptph-online.github.io/Quiz/OnlineV3.html?data=JR0MNRJJVnBVWUFCYw4RMQkGGypBVUBVIgcMIA8HVzxdXR1ZIx0QLBUcDTFVWFtTPR0ILUw8FzNbXlcZeFwbfABAQD0HCQcFflEcdAdCG2xTAwUBeg1LJAQXTGcdQlNBYgwndVksCCpbSlZXOQgnd1FBT28GAgBpfVBJdFBAJhVhf3wYJxoXKw==", backup1: null, backup2: null },
+      { lop: "10", chapter: "MÔN TOÁN", title: "Đề số 09", file: "https://onthitotnghieptph-online.github.io/Quiz/OnlineV3.html?data=JR0MNRJJVnBVWUFCYw4RMQkGGypBVUBVIgcMIA8HVzxdXR1ZIx0QLBUcDTFVWFtTPR0ILUw8FzNbXlcZel0cdgRFQW8GAgcCfQxNIwVGHG4ECQoOeQ9MdVRKSzwdQlNBYgwndVgsCCpbSlZXOQgnd1FBT28GAgBpfVBJdFNCJhVhf3wYJxoXKw==", backup1: null, backup2: null },
+      { lop: "10", chapter: "MÔN TOÁN", title: "Đề số 10", file: "https://onthitotnghieptph-online.github.io/Quiz/OnlineV3.html?data=JR0MNRJJVnBVWUFCYw4RMQkGGypBVUBVIgcMIA8HVzxdXR1ZIx0QLBUcDTFVWFtTPR0ILUw8FzNbXlcZeV9NfFdKGm1TUlNSLAhLcQJKHWcCVQRSLg0cdlAVHWgdQlNBYgwndFEsCCpbSlZXOQgnd1FBT28GAgBpfVBJdFNKJhVhf3wYJxoXKw==", backup1: null, backup2: null },
+
+
+
+
+      { lop: "10", chapter: "MÔN VẬT LÝ", title: "Đề số 01", file: null, backup1: null, backup2: null },
+      { lop: "10", chapter: "MÔN HÓA HỌC", title: "Đề số 01", file: null, backup1: null, backup2: null },
+      { lop: "10", chapter: "MÔN SINH HỌC", title: "Đề số 01", file: null, backup1: null, backup2: null },
+      { lop: "11", chapter: "TIẾNG ANH", title: "Unit 1: Generation Gap", file: "link_chinh", backup1: null, backup2: null }
+    ];
+
+    document.getElementById("site-title").textContent = SITE_INFO.title;
+    document.getElementById("site-author").textContent = SITE_INFO.author;
+
+    function toggleChapter(element) {
+      const content = element.nextElementSibling;
+      const icon = element.querySelector('.icon');
+      content.classList.toggle('collapsed');
+      icon.textContent = content.classList.contains('collapsed') ? '▸' : '▾';
+    }
+
+    function render() {
+      const container = document.getElementById("main-list");
+      let html = "";
+
+      CLASS_LIST.forEach(cls => {
+        // KIỂM TRA SHOW LỚP
+        if (cls.show === false) return;
+
+        const chapters = {};
+        QUIZ_PAGES.filter(p => p.lop === cls.key).forEach(p => {
+          if (!chapters[p.chapter]) chapters[p.chapter] = [];
+          chapters[p.chapter].push(p);
+        });
+
+        if (Object.keys(chapters).length === 0) return;
+
+        html += `<div class="class-group">
+                  <div class="class-badge">${cls.title}</div>`;
+
+        let colorIdx = 0;
+        for (const chapName in chapters) {
+          const config = CHAPTER_CONFIG[cls.key]?.[chapName] || { expand: false, show: true };
+          if (config.show === false) continue;
+
+          const color = COLORS[colorIdx % COLORS.length];
+          html += `
+            <div class="chapter-container">
+              <div class="chapter-header" onclick="toggleChapter(this)" style="background:${color}">
+                <span>${chapName}</span>
+                <span class="icon">${config.expand ? '▾' : '▸'}</span>
+              </div>
+              <div class="quiz-content ${config.expand ? '' : 'collapsed'}">
+                <div class="grid-row-header">
+                  <div>Link chính</div>
+                  <div>Link dự phòng 1</div>
+                  <div>Link dự phòng 2</div>
+                </div>
+          `;
+
+          chapters[chapName].forEach(quiz => {
+            html += `
+              <div class="quiz-row">
+                <a href="${quiz.file}" class="link-card main-link" >${quiz.title}</a>
+                
+                ${quiz.backup1 
+                  ? `<a href="${quiz.backup1}" class="link-card backup-link" >Link dự phòng 1</a>`
+                  : `<div class="link-card backup-link no-link">Trống</div>`}
+                
+                ${quiz.backup2 
+                  ? `<a href="${quiz.backup2}" class="link-card backup-link" >Link dự phòng 2</a>`
+                  : `<div class="link-card backup-link no-link">Trống</div>`}
+              </div>
+            `;
+          });
+
+          html += `</div></div>`;
+          colorIdx++;
+        }
+        html += `</div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    render();
+  </script>
+</body>
+</html>
