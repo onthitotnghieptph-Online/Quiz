@@ -477,22 +477,22 @@
         .sticky-note .note-content { outline: none; margin-top: 10px; height: calc(100% - 15px); overflow: auto; }
 
         /* Nút kích hoạt viết (Chuyển thành dạng khung chứa 2 nút con) */
+        /* 0623 Nút kích hoạt viết (Chuyển thành dạng khung chứa 2 nút con) */
         #main-scratch-btn-container {
-        position: fixed !important; /* Cố định theo màn hình khi cuộn */
-        bottom: 20px !important;    /* Độ cao bằng với nút ẩn menu */
-        right: 25px !important;   /* Nằm dịch sang bên trái nút ẩn menu để không bị đè lên nhau */
-        
-        /* Xóa bỏ các định vị cũ tránh xung đột */
-        top: auto !important;
-        left: auto !important;
-        
-        z-index: 99999 !important;
-        display: none; 
-        display: flex; align-items: center; background: #9c27b0; 
-        color: white; border-radius: 30px; 
-        padding: 4px; /* Kích thước nhỏ gọn */
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
+            position: fixed; 
+            bottom: 20px;    
+            right: 25px;   
+            z-index: 99999;
+            display: none; 
+            display: flex; 
+            align-items: center; 
+            background: #9c27b0; 
+            color: white; 
+            border-radius: 30px; 
+            padding: 4px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        /* END 0623 */
     /* Phần nút nắm kéo riêng */
     #scratch-drag-handle {
         padding: 6px 8px; 
@@ -3339,35 +3339,146 @@ function resetScratchpadSize() {
 // Giữ nguyên các hàm bổ trợ khác bên dưới: makeElementDraggable, Hook và DOMContentLoaded...
 // Giữ nguyên các hàm bổ trợ khác như makeElementDraggable, Hook và DOMContentLoaded...
 // Các hàm kéo thả giao diện giữ nguyên...
+// 0623...
 function makeElementDraggable(elmnt, handle) {
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
     var isClick = false;
-    if (handle) { handle.onmousedown = dragMouseDown; handle.ontouchstart = dragMouseDown; } 
-    else { elmnt.onmousedown = dragMouseDown; elmnt.ontouchstart = dragMouseDown; }
+    var dragTarget = handle || elmnt;
 
+    dragTarget.onmousedown = dragMouseDown;
+    dragTarget.ontouchstart = dragTouchStart;
+
+    // Lắng nghe sự kiện thay đổi kích thước màn hình để tự động kéo nút về nếu bị khuất
+    window.addEventListener('resize', keepElementInViewport);
+
+    // Hàm phụ trợ: Giữ cho phần tử luôn nằm trong vùng nhìn thấy (Viewport)
+    function keepElementInViewport() {
+        // Chỉ xử lý nếu phần tử đã được chuyển sang chế độ top/left tự do
+        if (elmnt.style.bottom === "auto" && elmnt.style.right === "auto") {
+            var rect = elmnt.getBoundingClientRect();
+            var viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+            var viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+
+            var currentLeft = parseInt(elmnt.style.left) || rect.left;
+            var currentTop = parseInt(elmnt.style.top) || rect.top;
+
+            // Kiểm tra rìa phải và rìa dưới
+            if (currentLeft + rect.width > viewportWidth) {
+                elmnt.style.left = Math.max(0, viewportWidth - rect.width - 10) + "px";
+            }
+            if (currentTop + rect.height > viewportHeight) {
+                elmnt.style.top = Math.max(0, viewportHeight - rect.height - 10) + "px";
+            }
+            // Kiểm tra rìa trái và rìa trên (phòng hờ)
+            if (currentLeft < 0) elmnt.style.left = "10px";
+            if (currentTop < 0) elmnt.style.top = "10px";
+        }
+    }
+
+    // Hàm đồng bộ tọa độ CSS thực tế ở cái click/touch đầu tiên
+    function syncInitialPosition() {
+        if (elmnt.style.bottom !== "auto" || elmnt.style.right !== "auto") {
+            var rect = elmnt.getBoundingClientRect();
+            elmnt.style.top = rect.top + window.scrollY + "px";
+            elmnt.style.left = rect.left + window.scrollX + "px";
+            elmnt.style.setProperty('bottom', 'auto', 'important');
+            elmnt.style.setProperty('right', 'auto', 'important');
+        }
+    }
+
+    // --- XỬ LÝ TRÊN MÁY TÍNH (MOUSE) ---
     function dragMouseDown(e) {
-        isClick = true; e = e || window.event;
-        var clientX = e.clientX || (e.touches && e.touches[0].clientX);
-        var clientY = e.clientY || (e.touches && e.touches[0].clientY);
-        pos3 = clientX; pos4 = clientY;
-        document.onmouseup = closeDragElement; document.onmousemove = elementDrag;
-        document.ontouchend = closeDragElement; document.ontouchmove = elementDrag;
+        isClick = true; 
+        e = e || window.event;
+        e.preventDefault();
+        
+        syncInitialPosition();
+
+        pos3 = e.clientX; 
+        pos4 = e.clientY;
+        
+        document.onmouseup = closeDragElement; 
+        document.onmousemove = elementDrag;
     }
+
     function elementDrag(e) {
-        isClick = false; e = e || window.event;
-        var clientX = e.clientX || (e.touches && e.touches[0].clientX);
-        var clientY = e.clientY || (e.touches && e.touches[0].clientY);
-        pos1 = pos3 - clientX; pos2 = pos4 - clientY;
-        pos3 = clientX; pos4 = clientY;
-        elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+        isClick = false; 
+        e = e || window.event;
+        e.preventDefault();
+        
+        pos1 = pos3 - e.clientX; 
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX; 
+        pos4 = e.clientY;
+        
+        var newTop = elmnt.offsetTop - pos2;
+        var newLeft = elmnt.offsetLeft - pos1;
+
+        // Giới hạn không cho kéo ra ngoài màn hình ngay trong lúc rê chuột
+        var viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+        var viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+        var rect = elmnt.getBoundingClientRect();
+
+        if (newLeft < 0) newLeft = 0;
+        if (newTop < 0) newTop = 0;
+        if (newLeft + rect.width > viewportWidth) newLeft = viewportWidth - rect.width;
+        if (newTop + rect.height > viewportHeight) newTop = viewportHeight - rect.height;
+
+        elmnt.style.top = newTop + "px";
+        elmnt.style.left = newLeft + "px";
     }
+
+    // --- XỬ LÝ TRÊN ĐIỆN THOẠI (TOUCH) ---
+    function dragTouchStart(e) {
+        isClick = true;
+        if (e.touches.length === 1) {
+            syncInitialPosition();
+
+            pos3 = e.touches[0].clientX;
+            pos4 = e.touches[0].clientY;
+            document.ontouchend = closeDragElement;
+            document.ontouchmove = elementTouchDrag;
+        }
+    }
+
+    function elementTouchDrag(e) {
+        isClick = false;
+        if (e.touches.length === 1) {
+            pos1 = pos3 - e.touches[0].clientX;
+            pos2 = pos4 - e.touches[0].clientY;
+            pos3 = e.touches[0].clientX;
+            pos4 = e.touches[0].clientY;
+            
+            var newTop = elmnt.offsetTop - pos2;
+            var newLeft = elmnt.offsetLeft - pos1;
+
+            // Giới hạn phạm vi trong màn hình điện thoại khi vuốt
+            var viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+            var viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+            var rect = elmnt.getBoundingClientRect();
+
+            if (newLeft < 0) newLeft = 0;
+            if (newTop < 0) newTop = 0;
+            if (newLeft + rect.width > viewportWidth) newLeft = viewportWidth - rect.width;
+            if (newTop + rect.height > viewportHeight) newTop = viewportHeight - rect.height;
+
+            elmnt.style.top = newTop + "px";
+            elmnt.style.left = newLeft + "px";
+        }
+    }
+
     function closeDragElement() {
-        document.onmouseup = null; document.onmousemove = null;
-        document.ontouchend = null; document.ontouchmove = null;
-        if (isClick && elmnt.id === 'main-scratch-btn-container') { toggleScratchpad(); }
+        document.onmouseup = null; 
+        document.onmousemove = null;
+        document.ontouchend = null; 
+        document.ontouchmove = null;
+        
+        if (isClick && elmnt.id === 'main-scratch-btn-container') { 
+            toggleScratchpad(); 
+        }
     }
 }
+//0623
 
 // TỰ ĐỘNG CHÈN LỆNH HOOK VÀO ĐIỀU HƯỚNG CỦA BẠN
 const originalSetDisplayMode = window.setDisplayMode;
