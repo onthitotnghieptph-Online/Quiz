@@ -525,7 +525,6 @@
                 <span class="tool-label">CÔNG CỤ:</span>
                 <button id="btn-tool-draw" onclick="setScratchTool('draw')">✏️ Bút</button>
                 <button id="btn-tool-highlight" onclick="setScratchTool('highlight')">🖍️ Hi-light</button>
-                <button id="btn-tool-eraser" onclick="setScratchTool('eraser')">🧽 Cục tẩy</button>
             </div>
             
             <div class="tool-group">
@@ -538,8 +537,8 @@
             </div>
 
             <div class="tool-group" style="margin-top: 5px; border-top: 1px solid #444; padding-top: 8px;">
-                <button onclick="createStickyNote()">📌 Note</button>
-                <button onclick="clearScratchpad()" style="background: #555;">🗑️ Xóa</button>
+                <button id="btn-tool-eraser" onclick="setScratchTool('eraser')">🧽 Tẩy</button>
+                <button onclick="clearScratchpad()" style="background: #555;">🗑️ Xóa hết</button>
                 <button onclick="toggleScratchpad()" style="background: #d32f2f;">✕ Đóng</button>
             </div>
         </div>
