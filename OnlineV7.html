@@ -477,22 +477,22 @@
         .sticky-note .note-content { outline: none; margin-top: 10px; height: calc(100% - 15px); overflow: auto; }
 
         /* Nút kích hoạt viết (Chuyển thành dạng khung chứa 2 nút con) */
+        /* 0623 Nút kích hoạt viết (Chuyển thành dạng khung chứa 2 nút con) */
         #main-scratch-btn-container {
-        position: fixed !important; /* Cố định theo màn hình khi cuộn */
-        bottom: 20px !important;    /* Độ cao bằng với nút ẩn menu */
-        right: 25px !important;   /* Nằm dịch sang bên trái nút ẩn menu để không bị đè lên nhau */
-        
-        /* Xóa bỏ các định vị cũ tránh xung đột */
-        top: auto !important;
-        left: auto !important;
-        
-        z-index: 99999 !important;
-        display: none; 
-        display: flex; align-items: center; background: #9c27b0; 
-        color: white; border-radius: 30px; 
-        padding: 4px; /* Kích thước nhỏ gọn */
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
+            position: fixed; 
+            bottom: 20px;    
+            right: 25px;   
+            z-index: 99999;
+            display: none; 
+            display: flex; 
+            align-items: center; 
+            background: #9c27b0; 
+            color: white; 
+            border-radius: 30px; 
+            padding: 4px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        /* END 0623 */
     /* Phần nút nắm kéo riêng */
     #scratch-drag-handle {
         padding: 6px 8px; 
