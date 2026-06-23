@@ -484,7 +484,6 @@
             right: 25px;   
             z-index: 99999;
             display: none; 
-            display: flex; 
             align-items: center; 
             background: #9c27b0; 
             color: white; 
@@ -493,21 +492,21 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         /* END 0623 */
-    /* Phần nút nắm kéo riêng */
-    #scratch-drag-handle {
-        padding: 6px 8px; 
-        font-size: 14px;  
-        cursor: move; color: #e0a8ff;
-        user-select: none; -webkit-user-select: none;
-    }
-    /* Phần nút bấm để mở nháp */
-    #scratch-click-action {
-        background: transparent; color: white; border: none; 
-        padding: 6px 12px 6px 2px; 
-        font-size: 14px;           
-        font-weight: bold; cursor: pointer;
-    }
-    /* END 0620 Thanh công cụ nháp mini */
+        /* Phần nút nắm kéo riêng */
+        #scratch-drag-handle {
+            padding: 6px 8px; 
+            font-size: 14px;  
+            cursor: move; color: #e0a8ff;
+            user-select: none; -webkit-user-select: none;
+        }
+        /* Phần nút bấm để mở nháp */
+        #scratch-click-action {
+            background: transparent; color: white; border: none; 
+            padding: 6px 12px 6px 2px; 
+            font-size: 14px;           
+            font-weight: bold; cursor: pointer;
+        }
+        /* END 0620 Thanh công cụ nháp mini */
 
 
     </style>
@@ -564,7 +563,7 @@
           <!-- 281 -->
           <input type="text" id="fullName" placeholder="Họ và tên" autocomplete="off">
           <input type="text" id="className" placeholder="Lớp" required autocomplete="off">
-          <input type="text" id="shoolName" placeholder="Trường đang học" required autocomplete="off">
+          <input type="text" id="shoolName" placeholder="Tên Trường" required autocomplete="off">
           <!-- 271 -->
           <div id="password-section" style="display: none; width: 50%;">
             <input type="text" id="quizPasswordInput" placeholder="Nhập mật khẩu đề thi" autocomplete="new-password">
@@ -603,11 +602,14 @@
                     <button onclick="decreaseFont()">A−</button>
                     <button onclick="increaseFont()">A+</button>
                 </div>
+                <!-- 0624 -->
                 <div id="display-mode-container" class="font-control-co-chu" style="margin-top: 10px; background: #fff3e0; border-color: #ffe0b2; display: none;">
                     <span class="font-label-co-chu" style="color: #e65100;">Hiển thị:</span>
                     <button onclick="setDisplayMode('single')" id="btn-mode-single" style="font-size: 15px; padding: 4px 6px; background: #2196F3; color: white;">Từng câu</button>
                     <button onclick="setDisplayMode('all')" id="btn-mode-all" style="font-size: 15px; padding: 4px 6px;">Tất cả</button>
+                    <button onclick="togglePenMenu()" id="btn-toggle-pen" style="font-size: 15px; padding: 4px 6px;"> Pen </button>
                 </div>
+                <!-- 0624 -->
 
                 <div id="timer"></div>
                 <div class="results-table-container" id="results-container-type1">
@@ -672,7 +674,7 @@ let QUIZ_PASSWORD_ORIGINAL = ""; // Biến lưu mật khẩu từ JSON
 let mode_xuatketqua = "HS_DIEM";
 // 0620
 //window.mode_pen = "khongchophep"; window thì chắc hơn
-let QUIZ_MODE_PEN = true;
+//let QUIZ_MODE_PEN = true;
 //END 0620
 let QUIZ_MODE_CSV = false; // Mặc định là ẩn
 let shuffleOptions = {
@@ -787,13 +789,6 @@ async function loadData() {
             // Lấy Link nộp bài từ JSON
             if (data.quiz_info.script_url) {
                 SCRIPT_URL = data.quiz_info.script_url;
-            }
-
-            // 2. Xử lý cho bút và highlight JSON
-            if (data.quiz_info.mode_pen) {
-                QUIZ_MODE_PEN = data.quiz_info.mode_pen;
-                //console.log("✅ Đã cập nhật cấu hình QUIZ_MODE_PEN", QUIZ_MODE_PEN);
-                //applyQuizModePen();
             }
 
             // 2. Xử lý ẩn/hiện nút xuất CSV ngay lập tức dựa trên cấu hình JSON
@@ -3338,6 +3333,7 @@ function resetScratchpadSize() {
 
 // Giữ nguyên các hàm bổ trợ khác bên dưới: makeElementDraggable, Hook và DOMContentLoaded...
 // Giữ nguyên các hàm bổ trợ khác như makeElementDraggable, Hook và DOMContentLoaded...
+// Các hàm kéo thả giao diện giữ nguyên...
 // 0623...
 function makeElementDraggable(elmnt, handle) {
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
@@ -3478,7 +3474,54 @@ function makeElementDraggable(elmnt, handle) {
     }
 }
 //0623
+//0624 nút bật tắt Pen
+function togglePenMenu() {
 
+    const penBtn = document.getElementById("main-scratch-btn-container");
+    const tools = document.getElementById("scratchpad-tools");
+    const menuBtn = document.getElementById("btn-toggle-pen");
+
+    if (!penBtn) return;
+
+    const isVisible = window.getComputedStyle(penBtn).display !== "none";
+
+    if (!isVisible) {
+
+        penBtn.style.display = "flex";
+
+        // Chỉ khởi tạo kéo thả một lần
+        if (!penBtn.dataset.dragInit &&
+            typeof makeElementDraggable === "function") {
+
+            makeElementDraggable(
+                document.getElementById("main-scratch-btn-container"),
+                document.getElementById("scratch-drag-handle")
+            );
+
+            makeElementDraggable(
+                document.getElementById("scratchpad-tools"),
+                document.querySelector(".tools-drag-handle")
+            );
+
+            penBtn.dataset.dragInit = "1";
+        }
+
+        menuBtn.style.background = "#9c27b0";
+        menuBtn.style.color = "white";
+
+    } else {
+
+        penBtn.style.display = "none";
+
+        if (tools) {
+            tools.style.display = "none";
+        }
+
+        menuBtn.style.background = "";
+        menuBtn.style.color = "";
+    }
+}
+//END 0624
 // TỰ ĐỘNG CHÈN LỆNH HOOK VÀO ĐIỀU HƯỚNG CỦA BẠN
 const originalSetDisplayMode = window.setDisplayMode;
 window.setDisplayMode = function(mode) {
@@ -3556,24 +3599,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 modeBtnContainer.style.display = "none";
             }
-        }
-
-        // --- BƯỚC 8: KIỂM TRA CẤU HÌNH VÀ KÍCH HOẠT KÉO THẢ BÚT NHÁP BÀI ---
-        const btnContainer = document.getElementById("main-scratch-btn-container");
-        if (typeof QUIZ_MODE_PEN !== 'undefined' && QUIZ_MODE_PEN === true) {
-            if (btnContainer) {
-                btnContainer.style.display = "flex"; // Chỉ hiển thị dạng flex khi JSON cho phép
-                
-                // 1. Khung chứa nút chính di chuyển KHI NẮM VÀO nút kéo ☰ riêng biệt
-                if (typeof makeElementDraggable === "function") {
-                    makeElementDraggable(document.getElementById("main-scratch-btn-container"), document.getElementById("scratch-drag-handle"));
-                    // 2. Kích hoạt tính năng kéo thả cho bảng công cụ nháp bài
-                    makeElementDraggable(document.getElementById("scratchpad-tools"), document.querySelector(".tools-drag-handle"));
-                }
-            }
-        } else {
-            // Nếu sai cấu hình hoặc JSON không cho phép, ép nút Nháp bài ẩn vĩnh viễn
-            if (btnContainer) btnContainer.style.display = "none";
         }
 
     } catch (e) {
